@@ -17,6 +17,7 @@
     "zod": "^3.24.2"
   },
   "devDependencies": {
+    "@flydotio/dockerfile": "^0.7.9",
     "@types/express": "^5.0.1",
     "typescript": "^5.8.2"
   }
