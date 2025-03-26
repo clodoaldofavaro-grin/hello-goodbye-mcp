@@ -1,7 +1,7 @@
 {
     "mcpServers": {
       "hello-goodbye": {
-        "url": "https://hello-remote-mcp.fly.dev/sse"
+        "url": "https://hello-remote-mcp.fly.dev/"
       }
     }
   }

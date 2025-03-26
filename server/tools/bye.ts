@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { RequestHandlerExtra } from "@modelcontextprotocol/sdk/shared/protocol.js";
 
 // 1. Tool Schema
 export const ByeToolSchema = z.object({
@@ -22,14 +23,14 @@ export const byeToolDefinition = {
 };
 
 // 3. Tool implementation
-export const handleBye = (args: unknown) => {
+export const handleBye = async (args: unknown, extra: RequestHandlerExtra) => {
   const validated = ByeToolSchema.parse(args);
   const { name } = validated;
 
   return {
     content: [
       {
-        type: "text",
+        type: "text" as const,
         text: `Bye, ${name}! Don't let the door hit you on your way out!`,
       },
     ],

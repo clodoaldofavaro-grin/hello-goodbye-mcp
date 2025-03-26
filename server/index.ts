@@ -1,45 +1,10 @@
 import express, { Request, Response } from "express";
-import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
-import { ListToolsRequestSchema, CallToolRequestSchema } from "@modelcontextprotocol/sdk/types.js";
 import cors from 'cors';
-
-import { greetingToolDefinition, handleGreeting } from "./tools/greeting";
-import { byeToolDefinition, handleBye } from "./tools/bye";
-
-const server = new Server(
-    {
-        name: "example-server",
-        version: "1.0.0", 
-    },
-    {
-        capabilities: {
-            tools: {}
-        }
-    }
-);
-
-// ... set up server resources, tools, and prompts ...
-server.setRequestHandler(ListToolsRequestSchema, async () => {
-    return {
-        tools: [greetingToolDefinition, byeToolDefinition]
-    }
-});
-
-server.setRequestHandler(CallToolRequestSchema, async (request) => {
-    const { name, arguments: args } = request.params;
-
-    switch (name) {
-        case 'greeting':
-            return handleGreeting(args);
-        case 'bye':
-            return handleBye(args);    
-        default:
-            throw new Error(`Unknown tool: ${name}`);    
-    }
-})
+import { createMcpServer } from "./mcp-server";
 
 const app = express();
+const mcpServer = createMcpServer();
 
 // Add CORS middleware
 app.use(cors({
@@ -59,7 +24,7 @@ app.get("/", async (_: Request, res: Response) => {
     res.on("close", () => {
       delete transports[transport.sessionId];
     });
-    await server.connect(transport);
+    await mcpServer.connect(transport);
     console.log(`SSE connection established with session ID: ${transport.sessionId}`);
   } catch (error) {
     console.error('Error establishing SSE connection:', error);

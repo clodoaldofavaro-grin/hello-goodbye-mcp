@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { RequestHandlerExtra } from "@modelcontextprotocol/sdk/shared/protocol.js";
 
 // 1. Tool Schema
 export const GreetingToolSchema = z.object({
@@ -22,14 +23,14 @@ export const greetingToolDefinition = {
 };
 
 // 3. Tool implementation
-export const handleGreeting = (args: unknown) => {
+export const handleGreeting = async (args: unknown, _extra: RequestHandlerExtra) => {
   const validated = GreetingToolSchema.parse(args);
   const { name } = validated;
 
   return {
     content: [
       {
-        type: "text",
+        type: "text" as const,
         text: `Hello, ${name}! Welcome to the Model Context Protocol. We are remote! Yay!`,
       },
     ],
