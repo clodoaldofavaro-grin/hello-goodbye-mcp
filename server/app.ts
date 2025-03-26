@@ -34,7 +34,7 @@ export function createApp() {
     app.get("/:token/sse", authenticateRequest, async (req: Request, res: Response): Promise<void> => {
         try {
             // Each authenticated client gets their own transport with a unique session ID
-            const transport = new SSEServerTransport('/messages', res);
+            const transport = new SSEServerTransport(`/${req.params.token}/messages`, res);
             transports[transport.sessionId] = transport;
             
             // Store authentication info with the transport if needed
