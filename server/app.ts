@@ -5,11 +5,11 @@ import { createMcpServer } from "./mcp-server";
 
 // Authentication middleware
 function authenticateRequest(req: Request, res: Response, next: NextFunction): void {
-    const apiKey = req.headers['x-api-key'];
+    const token = req.params.token;
     
     // Validate against environment variable
-    if (!apiKey || apiKey !== process.env.API_KEY) {
-        res.status(401).json({ error: 'Unauthorized - Invalid API Key' });
+    if (!token || token !== process.env.MCP_TOKEN) {
+        res.status(401).json({ error: 'Unauthorized - Invalid Token' });
         return;
     }
     
@@ -24,14 +24,14 @@ export function createApp() {
     app.use(cors({
         origin: '*',
         methods: ['GET', 'POST'],
-        allowedHeaders: ['Content-Type', 'x-api-key']
+        allowedHeaders: ['Content-Type']
     }));
 
     // Map to track authenticated transports by session ID
     const transports: {[sessionId: string]: SSEServerTransport} = {};
 
     // Add authentication to the SSE endpoint
-    app.get("/", authenticateRequest, async (req: Request, res: Response): Promise<void> => {
+    app.get("/:token/sse", authenticateRequest, async (req: Request, res: Response): Promise<void> => {
         try {
             // Each authenticated client gets their own transport with a unique session ID
             const transport = new SSEServerTransport('/messages', res);
@@ -39,7 +39,7 @@ export function createApp() {
             
             // Store authentication info with the transport if needed
             // @ts-ignore - adding custom property
-            transport.apiKey = req.headers['x-api-key'];
+            transport.token = req.params.token;
             
             res.on("close", () => {
                 // Clean up the transport when the client disconnects
@@ -66,10 +66,10 @@ export function createApp() {
                 return;
             }
 
-            // Verify that the API key matches the one used to establish the transport
+            // Verify that the token matches the one used to establish the transport
             // @ts-ignore - accessing custom property
-            if (transport.apiKey !== req.headers['x-api-key']) {
-                res.status(401).send('API key does not match the one used to establish connection');
+            if (transport.token !== req.params.token) {
+                res.status(401).send('Token does not match the one used to establish connection');
                 return;
             }
             
