@@ -1,10 +1,7 @@
 {
     "mcpServers": {
       "hello-goodbye": {
-        "url": "https://hello-remote-mcp.fly.dev/",
-        "env": {
-          "API_KEY": "value"
-        }
+        "url": "https://hello-remote-mcp.fly.dev/sse"
       }
     }
   }

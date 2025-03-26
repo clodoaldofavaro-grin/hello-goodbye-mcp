@@ -7,6 +7,7 @@ const express_1 = __importDefault(require("express"));
 const index_js_1 = require("@modelcontextprotocol/sdk/server/index.js");
 const sse_js_1 = require("@modelcontextprotocol/sdk/server/sse.js");
 const types_js_1 = require("@modelcontextprotocol/sdk/types.js");
+const cors_1 = __importDefault(require("cors"));
 const greeting_1 = require("./tools/greeting");
 const bye_1 = require("./tools/bye");
 const server = new index_js_1.Server({
@@ -35,16 +36,29 @@ server.setRequestHandler(types_js_1.CallToolRequestSchema, async (request) => {
     }
 });
 const app = (0, express_1.default)();
+// Add CORS middleware
+app.use((0, cors_1.default)({
+    origin: '*',
+    methods: ['GET', 'POST'],
+    allowedHeaders: ['Content-Type']
+}));
 // to support multiple simultaneous connections we have a lookup object from
 // sessionId to transport
 const transports = {};
-app.get("/sse", async (_, res) => {
-    const transport = new sse_js_1.SSEServerTransport('/messages', res);
-    transports[transport.sessionId] = transport;
-    res.on("close", () => {
-        delete transports[transport.sessionId];
-    });
-    await server.connect(transport);
+app.get("/", async (_, res) => {
+    try {
+        const transport = new sse_js_1.SSEServerTransport('/messages', res);
+        transports[transport.sessionId] = transport;
+        res.on("close", () => {
+            delete transports[transport.sessionId];
+        });
+        await server.connect(transport);
+        console.log(`SSE connection established with session ID: ${transport.sessionId}`);
+    }
+    catch (error) {
+        console.error('Error establishing SSE connection:', error);
+        res.status(500).send('Error establishing SSE connection');
+    }
 });
 app.post("/messages", async (req, res) => {
     const sessionId = req.query.sessionId;
