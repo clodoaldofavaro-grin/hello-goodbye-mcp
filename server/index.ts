@@ -13,17 +13,20 @@ app.use(cors({
   allowedHeaders: ['Content-Type']
 }));
 
-// to support multiple simultaneous connections we have a lookup object from
-// sessionId to transport
+// Map to track transports by session ID
 const transports: {[sessionId: string]: SSEServerTransport} = {};
 
 app.get("/", async (_: Request, res: Response) => {
   try {
+    // Each client gets their own transport with a unique session ID
     const transport = new SSEServerTransport('/messages', res);
     transports[transport.sessionId] = transport;
+    
     res.on("close", () => {
+      // Clean up the transport when the client disconnects
       delete transports[transport.sessionId];
     });
+    
     await mcpServer.connect(transport);
     console.log(`SSE connection established with session ID: ${transport.sessionId}`);
   } catch (error) {
@@ -34,10 +37,12 @@ app.get("/", async (_: Request, res: Response) => {
 
 app.post("/messages", async (req: Request, res: Response) => {
   try {
+    // Each message includes the session ID of the client that sent it
     const sessionId = req.query.sessionId as string;
-    console.log(`Received message for session ID: ${sessionId}`);
     const transport = transports[sessionId];
+    
     if (transport) {
+      // Only handle messages through the transport that belongs to the sending client
       await transport.handlePostMessage(req, res);
     } else {
       console.error(`No transport found for sessionId: ${sessionId}`);
