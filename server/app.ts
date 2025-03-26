@@ -5,7 +5,7 @@ import { createMcpServer } from "./mcp-server";
 
 // Authentication middleware
 function authenticateRequest(req: Request, res: Response, next: NextFunction): void {
-    const token = req.params.token;
+    const token = req.query.token as string;
     
     // You should replace this with your actual token validation logic
     // For example, checking against environment variables or a database
@@ -32,15 +32,15 @@ export function createApp() {
     const transports: {[sessionId: string]: SSEServerTransport} = {};
 
     // Add authentication to the SSE endpoint
-    app.get("/:token/sse", authenticateRequest, async (req: Request, res: Response): Promise<void> => {
+    app.get("/", authenticateRequest, async (req: Request, res: Response): Promise<void> => {
         try {
             // Each authenticated client gets their own transport with a unique session ID
-            const transport = new SSEServerTransport(`/messages?token=${req.params.token}`, res);
+            const transport = new SSEServerTransport('/messages', res);
             transports[transport.sessionId] = transport;
             
             // Store authentication info with the transport if needed
             // @ts-ignore - adding custom property
-            transport.token = req.params.token;
+            transport.token = req.query.token;
             
             res.on("close", () => {
                 // Clean up the transport when the client disconnects

@@ -1,10 +1,7 @@
 {
     "mcpServers": {
       "hello-goodbye": {
-        "url": "https://hello-remote-mcp.fly.dev/",
-        "headers": {
-          "x-api-key": "mcp_3R5Rsc8cX1EAp8PA8zNKcbUVEQUN5SuGve-xI8eLsqA"
-        }
+        "url": "https://hello-remote-mcp.fly.dev/?token=mcp_3R5Rsc8cX1EAp8PA8zNKcbUVEQUN5SuGve-xI8eLsqA"
       }
     }
   }
