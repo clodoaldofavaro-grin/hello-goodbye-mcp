@@ -59,6 +59,13 @@ export function createApp() {
         try {
             const sessionId = req.query.sessionId as string;
             const transport = transports[sessionId];
+
+            // Add logging for incoming messages
+            console.log('Received message:', {
+                sessionId,
+                body: req.body,
+                availableTransports: Object.keys(transports)
+            });
             
             if (!transport) {
                 console.error(`No transport found for sessionId: ${sessionId}`);
