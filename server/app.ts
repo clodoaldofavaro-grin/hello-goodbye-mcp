@@ -55,7 +55,7 @@ export function createApp() {
     });
 
     // Add authentication to the messages endpoint
-    app.post("/messages", authenticateRequest, async (req: Request, res: Response): Promise<void> => {
+    app.post("/:token/messages", authenticateRequest, async (req: Request, res: Response): Promise<void> => {
         try {
             const sessionId = req.query.sessionId as string;
             const transport = transports[sessionId];
