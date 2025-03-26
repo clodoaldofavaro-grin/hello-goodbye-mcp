@@ -51,7 +51,8 @@ app.use(cors({
 // to support multiple simultaneous connections we have a lookup object from
 // sessionId to transport
 const transports: {[sessionId: string]: SSEServerTransport} = {};
-app.get("/sse", async (_: Request, res: Response) => {
+
+app.get("/", async (_: Request, res: Response) => {
   try {
     const transport = new SSEServerTransport('/messages', res);
     transports[transport.sessionId] = transport;
