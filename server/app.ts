@@ -25,7 +25,7 @@ export function createApp() {
     app.use(cors({
         origin: '*',
         methods: ['GET', 'POST'],
-        allowedHeaders: ['Content-Type', 'X-API-Key']  // Add X-API-Key to allowed headers
+        allowedHeaders: ['Content-Type', 'x-api-key']  // Changed to lowercase to match Express's header convention
     }));
 
     // Map to track authenticated transports by session ID
